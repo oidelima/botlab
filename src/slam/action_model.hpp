@@ -55,7 +55,8 @@ public:
     
 private:
     
-    ////////// TODO: Add private member variables needed for you implementation ///////////////////
+    pose_xyz_t currentOdometry;
+    pose_xyz_t deltaOdometryAction;
 };
 
 #endif // SLAM_ACTION_MODEL_HPP

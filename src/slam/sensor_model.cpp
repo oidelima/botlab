@@ -14,6 +14,6 @@ SensorModel::SensorModel(void)
 double SensorModel::likelihood(const particle_t& sample, const lidar_t& scan, const OccupancyGrid& map)
 {
     ///////////// TODO: Implement your sensor model for calculating the likelihood of a particle given a laser scan //////////
-    
+    double sumLogLikelihood = 0.0;
     return 1.0;
 }
