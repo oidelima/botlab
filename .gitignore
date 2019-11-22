@@ -1,0 +1,8 @@
+lib/*.a
+src/*/*.o
+src/*/*/*.o
+src/lcmtypes/*.py
+src/lcmtypes/*.hpp
+src/lcmtypes/*.cpp
+src/lcmtypes/*.c
+src/lcmtypes/*.h
