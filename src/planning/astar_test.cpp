@@ -1,5 +1,6 @@
 #include <common/grid_utils.hpp>
 #include <common/timestamp.h>
+#include <common/point.hpp>
 #include <planning/motion_planner.hpp>
 #include <slam/occupancy_grid.hpp>
 #include <boost/accumulators/accumulators.hpp>
@@ -137,11 +138,10 @@ bool test_maze_grid(void)
 
 bool test_saved_poses(const std::string& mapFile, const std::string& posesFile, const std::string& testName)
 {
-    std::cout << "\nSTARTING: " << testName << '\n';
-    
+    std::cout << "\nSTARTING: " << testName << '\n' << std::flush;
+
     OccupancyGrid grid;
     grid.loadFromFile(mapFile);
-    
     std::ifstream poseIn(posesFile);
     if(!poseIn.is_open())
     {
@@ -158,23 +158,34 @@ bool test_saved_poses(const std::string& mapFile, const std::string& posesFile, 
     start.theta = 0.0;
     goal.theta = 0.0;
     bool shouldExist;
+
+
     
     MotionPlannerParams plannerParams;
     plannerParams.robotRadius = 0.1;
-    
+
     MotionPlanner planner(plannerParams);
     planner.setMap(grid);
+
     
     int numCorrect = 0;
     
     for(int n = 0; n < numGoals; ++n)
     {
         poseIn >> start.x >> start.y >> goal.x >> goal.y >> shouldExist;
-        
+
+        auto startt = global_position_to_grid_cell(Point<float>(start.x, start.y), grid);
+        auto endt = global_position_to_grid_cell(Point<float>(goal.x, goal.y), grid);
+
+        //std::cout << "START :" << static_cast<int>(grid(startt.x, startt.y -2))<< " END: " << static_cast<int>(grid(endt.x, endt.y + 4));
+
         robot_path_t path = timed_find_path(start, goal, planner, testName);
+
         
         // See if the generated path was valid
         bool foundPath = path.path_length > 1;
+
+        int count = 0;
         // The goal must be the same position as the end of the path if there was success
         if(!path.path.empty())
         {

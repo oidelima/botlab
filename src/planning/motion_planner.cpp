@@ -4,6 +4,8 @@
 #include <common/timestamp.h>
 #include <lcmtypes/robot_path_t.hpp>
 #include <cmath>
+#include <lcm/lcm-cpp.hpp>
+using namespace std;
 
 
 MotionPlanner::MotionPlanner(const MotionPlannerParams& params)
@@ -25,6 +27,7 @@ robot_path_t MotionPlanner::planPath(const pose_xyt_t& start,
                                      const SearchParams& searchParams) const
 {
     // If the goal isn't valid, then no path can actually exist
+
     if(!isValidGoal(goal))
     {
         robot_path_t failedPath;
@@ -32,11 +35,12 @@ robot_path_t MotionPlanner::planPath(const pose_xyt_t& start,
         failedPath.path_length = 1;
         failedPath.path.push_back(start);
 
+
         std::cout << "INFO: path rejected due to invalid goal\n";        
 
         return failedPath;
     }
-    
+    std::cout << "goal valid" << "\n";
     // Otherwise, use A* to find the path
     return search_for_path(start, goal, distances_, searchParams);
 }
@@ -50,14 +54,14 @@ robot_path_t MotionPlanner::planPath(const pose_xyt_t& start, const pose_xyt_t& 
 
 bool MotionPlanner::isValidGoal(const pose_xyt_t& goal) const
 {
-    float dx = goal.x - prev_goal.x, dy = goal.y - prev_goal.y;
+    //float dx = goal.x - prev_goal.x, dy = goal.y - prev_goal.y; WHY IS HE DOING THIS
+    float dx = goal.x - 0, dy = goal.y - 0;
     float distanceFromPrev = std::sqrt(dx * dx + dy * dy);
 
     //if there's more than 1 frontier, don't go to a target that is within a robot diameter of the current pose
-    if(num_frontiers != 1 && distanceFromPrev < 2 * searchParams_.minDistanceToObstacle) return false;
+    if(num_frontiers != 1 && distanceFromPrev <= 2 * searchParams_.minDistanceToObstacle) return false;
 
     auto goalCell = global_position_to_grid_cell(Point<double>(goal.x, goal.y), distances_);
-
     // A valid goal is in the grid
     if(distances_.isCellInGrid(goalCell.x, goalCell.y))
     {
