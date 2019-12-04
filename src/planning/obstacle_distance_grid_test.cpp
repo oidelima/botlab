@@ -127,6 +127,8 @@ bool test_free_space_distances(void)
     
     int numFreeCells = 0;
     int numCorrectFreeDistances = 0;
+
+
     
     for(int y = 0; y < grid.heightInCells(); ++y)
     {
@@ -137,7 +139,6 @@ bool test_free_space_distances(void)
                 ++numFreeCells;
                 
                 auto expectedDist = expected_free_distance(x, y, grid);
-                
                 if(std::abs(distances(x, y) - expectedDist) < 0.0001)
                 {
                     ++numCorrectFreeDistances;
@@ -172,9 +173,11 @@ float expected_free_distance(int x, int y, const OccupancyGrid& map)
 OccupancyGrid generate_grid(void)
 {
     const float kMetersPerCell = 0.1f;
+
     
     OccupancyGrid grid(kGridSideLength * kMetersPerCell, kGridSideLength * kMetersPerCell, kMetersPerCell);
-    
+
+
     for(int y = 0; y < grid.heightInCells(); ++y)
     {
         for(int x = 0; x < grid.widthInCells(); ++x)
@@ -183,6 +186,7 @@ OccupancyGrid generate_grid(void)
                 || (y == obstacleLowIndex) || (y == obstacleHighIndex))
             {
                 grid(x, y) = 50;
+
             }
             else if((x > obstacleLowIndex) && (x < obstacleHighIndex) && (y > obstacleLowIndex) 
                 && (y < obstacleHighIndex))
