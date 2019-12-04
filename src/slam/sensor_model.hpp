@@ -39,6 +39,7 @@ public:
 private:
     
     ///////// TODO: Add any private members for your SensorModel ///////////////////
+    int doBreshenhams(int x0, int y0, int x1, int y1, const OccupancyGrid& map);
 };
 
 #endif // SLAM_SENSOR_MODEL_HPP

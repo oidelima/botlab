@@ -39,6 +39,8 @@ private:
     const int8_t kMissOdds_;
     
     //////////////////// TODO: Add any private members needed for your occupancy grid mapping algorithm ///////////////
+
+    void doBreshenhams(int x0, int y0, int x1, int y1, OccupancyGrid& map);
 };
 
 #endif // SLAM_MAPPING_HPP
