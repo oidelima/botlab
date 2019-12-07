@@ -5,6 +5,7 @@
 #include <common/point.hpp>
 #include <common/grid_utils.hpp>
 #include <math.h>
+#include <limits.h>
 using namespace std;
 
 
@@ -42,7 +43,7 @@ bool isSafe(int row, int col, const ObstacleDistanceGrid& distances, const Searc
 
     // Search a circular region around (x, y). If any of the cells within the robot radius are occupied, then the
     // cell isn't safe.
-    const int kSafeCellRadius = std::lrint(std::ceil(params.minDistanceToObstacle * distances.cellsPerMeter()));
+    //const int kSafeCellRadius = std::lrint(std::ceil(params.minDistanceToObstacle * distances.cellsPerMeter()));
 
     /*for(int dy = -kSafeCellRadius; dy <= kSafeCellRadius + 1; ++dy)
     {
@@ -62,7 +63,7 @@ bool isSafe(int row, int col, const ObstacleDistanceGrid& distances, const Searc
         }
     }*/
 
-    if (std::lrint(std::ceil(distances(col, row) * distances.cellsPerMeter())) <= kSafeCellRadius ) return false;
+    if (distances(col, row) <= params.minDistanceToObstacle ) return false;
 
     // The area around the cell is free of obstacles, so all is well
     return true;
@@ -125,7 +126,7 @@ double calculateHValue(int row, int col, Pair dest, const ObstacleDistanceGrid& 
     // Return using the distance formula and the distance to obstacle
     double obstacle_H = distances(col, row);
     double distance_H = (double)sqrt ((row-dest.second)*(row-dest.second) + (col-dest.first)*(col-dest.first));
-    return obstacle_H + distance_H;
+    return distance_H + obstacle_H; // obstacle_H
 }
 
 
@@ -297,6 +298,7 @@ stack<Pair> aStarSearch(const ObstacleDistanceGrid& distances, Pair src, Pair de
                 // If it is on the open list already, check
                 // to see if this path to that square is better,
                 // using 'f' cost as the measure.
+                //cout << "(cellDetails[i-1][j].f> fNew): " << (cellDetails[i-1][j].f) << " " << (fNew) << "\n";
                 if (cellDetails[i-1][j].f == FLT_MAX ||
                         cellDetails[i-1][j].f > fNew)
                 {
@@ -348,6 +350,7 @@ stack<Pair> aStarSearch(const ObstacleDistanceGrid& distances, Pair src, Pair de
                 // If it is on the open list already, check
                 // to see if this path to that square is better,
                 // using 'f' cost as the measure.
+                //cout << "(cellDetails[i+1][j].f> fNew): " << (cellDetails[i+1][j].f) << " " << (fNew) << "\n";
                 if (cellDetails[i+1][j].f == FLT_MAX ||
                         cellDetails[i+1][j].f > fNew)
                 {
@@ -398,6 +401,7 @@ stack<Pair> aStarSearch(const ObstacleDistanceGrid& distances, Pair src, Pair de
                 // If it is on the open list already, check
                 // to see if this path to that square is better,
                 // using 'f' cost as the measure.
+                //cout << "(cellDetails[i][j+1].f> fNew): " << (cellDetails[i][j+1].f) << " " << (fNew) << "\n";
                 if (cellDetails[i][j+1].f == FLT_MAX ||
                         cellDetails[i][j+1].f > fNew)
                 {
@@ -435,6 +439,7 @@ stack<Pair> aStarSearch(const ObstacleDistanceGrid& distances, Pair src, Pair de
             // If the successor is already on the closed
             // list or if it is blocked, then ignore it.
             // Else do the following
+            
             else if (closedList[i][j-1] == false &&
                      isUnBlocked(distances, i, j-1) == true)
             {
@@ -450,6 +455,7 @@ stack<Pair> aStarSearch(const ObstacleDistanceGrid& distances, Pair src, Pair de
                 // If it is on the open list already, check
                 // to see if this path to that square is better,
                 // using 'f' cost as the measure.
+                //cout << "(cellDetails[i][j-1].f> fNew): " << (cellDetails[i][j-1].f) << " " << (fNew) << "\n";
                 if (cellDetails[i][j-1].f == FLT_MAX ||
                         cellDetails[i][j-1].f > fNew)
                 {
@@ -487,6 +493,7 @@ stack<Pair> aStarSearch(const ObstacleDistanceGrid& distances, Pair src, Pair de
             // If the successor is already on the closed
             // list or if it is blocked, then ignore it.
             // Else do the following
+            
             else if (closedList[i-1][j+1] == false &&
                      isUnBlocked(distances, i-1, j+1) == true)
             {
@@ -502,6 +509,7 @@ stack<Pair> aStarSearch(const ObstacleDistanceGrid& distances, Pair src, Pair de
                 // If it is on the open list already, check
                 // to see if this path to that square is better,
                 // using 'f' cost as the measure.
+                //cout << "(cellDetails[i-1][j+1].f> fNew): " << (cellDetails[i-1][j+1].f) << " " << (fNew) << "\n";
                 if (cellDetails[i-1][j+1].f == FLT_MAX ||
                         cellDetails[i-1][j+1].f > fNew)
                 {
@@ -539,6 +547,7 @@ stack<Pair> aStarSearch(const ObstacleDistanceGrid& distances, Pair src, Pair de
             // If the successor is already on the closed
             // list or if it is blocked, then ignore it.
             // Else do the following
+            
             else if (closedList[i-1][j-1] == false &&
                      isUnBlocked(distances, i-1, j-1) == true)
             {
@@ -554,6 +563,7 @@ stack<Pair> aStarSearch(const ObstacleDistanceGrid& distances, Pair src, Pair de
                 // If it is on the open list already, check
                 // to see if this path to that square is better,
                 // using 'f' cost as the measure.
+                //cout << "(cellDetails[i-1][j-1].f> fNew): " << (cellDetails[i-1][j-1].f) << " " << (fNew) << "\n";
                 if (cellDetails[i-1][j-1].f == FLT_MAX ||
                         cellDetails[i-1][j-1].f > fNew)
                 {
@@ -589,6 +599,7 @@ stack<Pair> aStarSearch(const ObstacleDistanceGrid& distances, Pair src, Pair de
             // If the successor is already on the closed
             // list or if it is blocked, then ignore it.
             // Else do the following
+            
             else if (closedList[i+1][j+1] == false &&
                      isUnBlocked(distances, i+1, j+1) == true)
             {
@@ -604,6 +615,7 @@ stack<Pair> aStarSearch(const ObstacleDistanceGrid& distances, Pair src, Pair de
                 // If it is on the open list already, check
                 // to see if this path to that square is better,
                 // using 'f' cost as the measure.
+                //cout << "(cellDetails[i+1][j+1].f> fNew): " << (cellDetails[i+1][j+1].f) << " " << (fNew) << "\n";
                 if (cellDetails[i+1][j+1].f == FLT_MAX ||
                         cellDetails[i+1][j+1].f > fNew)
                 {
@@ -641,6 +653,7 @@ stack<Pair> aStarSearch(const ObstacleDistanceGrid& distances, Pair src, Pair de
             // If the successor is already on the closed
             // list or if it is blocked, then ignore it.
             // Else do the following
+            
             else if (closedList[i+1][j-1] == false &&
                      isUnBlocked(distances, i+1, j-1) == true)
             {
@@ -656,6 +669,7 @@ stack<Pair> aStarSearch(const ObstacleDistanceGrid& distances, Pair src, Pair de
                 // If it is on the open list already, check
                 // to see if this path to that square is better,
                 // using 'f' cost as the measure.
+                //cout << "(cellDetails[i+1][j-1].f> fNew): " << (cellDetails[i+1][j-1].f) <<  " " << (fNew) << "\n";
                 if (cellDetails[i+1][j-1].f == FLT_MAX ||
                         cellDetails[i+1][j-1].f > fNew)
                 {
@@ -721,9 +735,11 @@ robot_path_t search_for_path(pose_xyt_t start,
     robot_path_t path;
     path.utime = start.utime;
     //path.path.push_back(start);
+    float prev_rounded_x = start.x;
+    float prev_rounded_y = start.y;
     float prev_x = start.x;
     float prev_y = start.y;
-
+    float prev_theta = 0.0;
 
     while (!Path.empty())
     {
@@ -732,22 +748,33 @@ robot_path_t search_for_path(pose_xyt_t start,
         auto stepCell = grid_position_to_global_position(Point<float>(p.second, p.first),  distances);
         float rounded_x = round( stepCell.x * 100000.0 ) / 100000.0;
         float rounded_y = round( stepCell.y * 100000.0 ) / 100000.0;
-        float theta = atan2(rounded_y - prev_y, rounded_x - prev_x);
-        //cout << "(" << rounded_y - prev_y << ") ->";
-        //cout << "(" << rounded_x - prev_x << ") ->";
-        prev_x = rounded_x;
-        prev_y = rounded_y;
-        pose_xyt_t step = {NULL, stepCell.x, stepCell.y, theta};
-        //cout << "(" << theta << ") ->";
-        //pose_xyt_t step;
-        //cout << "(" << step.x << "," << step.y << ") -> ";
-        //cout << "(" << std::lrint(std::ceil(distances(p.second, p.first) * distances.cellsPerMeter()))<< ") -> ";
-        path.path.push_back(step);
+        float theta = atan2(rounded_y - prev_rounded_y, rounded_x - prev_rounded_x);
+
+        if (theta != prev_theta){
+            //push previous step
+            pose_xyt_t prev_step = {NULL, prev_x, prev_y, prev_theta};
+            cout << "(" << prev_step.x << "," << prev_step.y << "," << prev_theta << ") -> ";
+            path.path.push_back(prev_step);
+
+            //pushing current step
+            //pose_xyt_t step = {NULL, stepCell.x, stepCell.y, theta};
+            //cout << "(" << step.x << "," << step.y << "," << theta << ") -> ";
+            //path.path.push_back(step);
+        }
+        prev_x = stepCell.x;
+        prev_y = stepCell.y;
+        prev_rounded_x = rounded_x;
+        prev_rounded_y = rounded_y;
+        prev_theta = theta;
         Path.pop();
 
     }
-    path.path_length = path.path.size();
+    
+    //push last step
+    cout << "(" << goal.x << "," << goal.y << "," << prev_theta << ") -> ";
+    path.path.push_back(goal);
 
+    path.path_length = path.path.size();
 
     return path;
 }

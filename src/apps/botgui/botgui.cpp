@@ -113,7 +113,7 @@ int BotGui::onMouseEvent(vx_layer_t* layer,
         lcmInstance_->publish(CONTROLLER_PATH_CHANNEL, &path);
     }
     // If an Right-click, send a target to the A* planner
-    else if((event->button_mask & VX_BUTTON3_MASK) && (event->modifiers == 0))
+    else if((event->button_mask & VX_BUTTON3_MASK)) //&& (event->modifiers == 0))
     {
         std::cout << "Planning path to " << worldPoint << "...";
         int64_t startTime = utime_now();
@@ -121,9 +121,14 @@ int BotGui::onMouseEvent(vx_layer_t* layer,
         target.x = worldPoint.x;
         target.y = worldPoint.y;
         target.theta = 0.0f;
-        
-        MotionPlanner planner;
+       
+        MotionPlannerParams plannerParams;
+        plannerParams.robotRadius = 0.16;
+
+
+        MotionPlanner planner(plannerParams);
         planner.setMap(map_);
+
         robot_path_t plannedPath = planner.planPath(slamPose_, target);
         distances_ = planner.obstacleDistances();
         lcmInstance_->publish(CONTROLLER_PATH_CHANNEL, &plannedPath);
