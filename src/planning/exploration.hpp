@@ -103,6 +103,7 @@ private:
     
     pose_xyt_t   currentTarget_;    // Current target robot is driving to
     OccupancyGrid exploredMap_;     // Map found after completing the RETURNING_HOME state
+    int countToNewPath_;
     
     size_t prev_frontier_size;
     bool pathReceived_;

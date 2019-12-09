@@ -27,8 +27,9 @@ Exploration::Exploration(int32_t teamNumber,
 , haveNewPose_(false)
 , haveNewMap_(false)
 , haveHomePose_(false)
+, countToNewPath_(0)
 , lcmInstance_(lcmInstance)
-, pathReceived_(false)
+, pathReceived_(false) 
 {
     assert(lcmInstance_);   // confirm a nullptr wasn't passed in
     
@@ -243,6 +244,20 @@ int8_t Exploration::executeExploringMap(bool initialize)
     *           explored more of the map.
     *       -- You will likely be able to see the frontier before actually reaching the end of the path leading to it.
     */
+
+    frontiers_ = find_map_frontiers(currentMap_, currentPose_, 5);
+
+    if (countToNewPath_ == 0) {
+        currentPath_ = plan_path_to_frontier(frontiers_, 
+                                   currentPose_,
+                                   currentMap_,
+                                   planner_);
+        countToNewPath_ += 10;
+    }else {
+        countToNewPath_--; 
+    }
+    
+
     
     /////////////////////////////// End student code ///////////////////////////////
     
