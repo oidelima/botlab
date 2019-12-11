@@ -6,6 +6,7 @@
 #include <queue>
 #include <set>
 #include <cassert>
+#include <common/point.hpp>
 
 
 bool is_frontier_cell(int x, int y, const OccupancyGrid& map);
@@ -99,9 +100,40 @@ robot_path_t plan_path_to_frontier(const std::vector<frontier_t>& frontiers,
     *   - The cells along the frontier might not be in the configuration space of the robot, so you won't necessarily
     *       be able to drive straight to a frontier cell, but will need to drive somewhere close.
     */
-    robot_path_t emptyPath;
+
+    frontier_t closestFrontier = getClosestFrontier(frontiers, robotPose);
+
+    robot_path_t plannedPath;
+
+    for (Point<float> point: closestFrontier.cells){
+        pose_xyt_t midway_point = {NULL, (point.x - robotPose.x)/2, (point.y - robotPose.y)/2, 0};
+        plannedPath = planner.planPath(robotPose, midway_point);
+        if (plannedPath.path_length != 1){
+            return plannedPath;
+        }
+    }
+
+    return plannedPath;
+}
+
+frontier_t getClosestFrontier(const std::vector<frontier_t>& frontiers, const pose_xyt_t& robotPose){
+    frontier_t closestFrontier;
+    float distance;
+    float min_distance = 10000;
     
-    return emptyPath;
+    for (frontier_t frontier : frontiers){
+        for (Point<float> point : frontier.cells){
+            distance = sqrt(pow(robotPose.x - point.x, 2) + pow(robotPose.y - point.y, 2));
+            if (distance < min_distance){
+                min_distance = distance;
+                closestFrontier = frontier;
+                break;
+            }
+        }
+
+    }
+    return closestFrontier;
+
 }
 
 

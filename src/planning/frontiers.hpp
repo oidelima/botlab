@@ -55,4 +55,6 @@ robot_path_t plan_path_to_frontier(const std::vector<frontier_t>& frontiers,
                                    const OccupancyGrid& map,
                                    const MotionPlanner& planner);
 
+frontier_t getClosestFrontier(const std::vector<frontier_t>& frontiers, const pose_xyt_t& robotPose);
+
 #endif // PLANNING_FRONTIERS_HPP
