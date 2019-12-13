@@ -101,17 +101,19 @@ robot_path_t plan_path_to_frontier(const std::vector<frontier_t>& frontiers,
     *       be able to drive straight to a frontier cell, but will need to drive somewhere close.
     */
 
-    frontier_t closestFrontier = getClosestFrontier(frontiers, robotPose);
+    //frontier_t closestFrontier = getClosestFrontier(frontiers, robotPose);
 
     robot_path_t plannedPath;
-
-    for (Point<float> point: closestFrontier.cells){
-        pose_xyt_t midway_point = {NULL, (point.x - robotPose.x)/2, (point.y - robotPose.y)/2, 0};
-        plannedPath = planner.planPath(robotPose, midway_point);
-        if (plannedPath.path_length != 1){
-            return plannedPath;
+    for (frontier_t frontier : frontiers){
+        for (Point<float> point: frontier.cells){
+            pose_xyt_t midway_point = {NULL, (point.x - robotPose.x)/2, (point.y - robotPose.y)/2, 0};
+            plannedPath = planner.planPath(robotPose, midway_point);
+            if (plannedPath.path_length != 1){
+                return plannedPath;
+                }
         }
     }
+    
 
     return plannedPath;
 }

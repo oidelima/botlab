@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <cassert>
 
+
 const float kReachedPositionThreshold = 0.05f;  // must get within this distance of a position for it to be explored
 
 // Define an equality operator for poses to allow direct comparison of two paths
@@ -27,7 +28,6 @@ Exploration::Exploration(int32_t teamNumber,
 , haveNewPose_(false)
 , haveNewMap_(false)
 , haveHomePose_(false)
-, countToNewPath_(0)
 , lcmInstance_(lcmInstance)
 , pathReceived_(false) 
 {
@@ -47,8 +47,10 @@ Exploration::Exploration(int32_t teamNumber,
     
     lcmInstance_->publish(EXPLORATION_STATUS_CHANNEL, &status);
     
+    countToNewPath_ = 0;
+
     MotionPlannerParams params;
-    params.robotRadius = 0.16;
+    params.robotRadius = 0.2;
     planner_.setParams(params);
 }
 
@@ -178,8 +180,9 @@ void Exploration::executeStateMachine(void)
     } while(stateChanged);
 
     //if path confirmation was not received, resend path
-    if(!pathReceived_)
+    /*if(!pathReceived_ && previousPath.path != currentPath_.path)
     {
+
         std::cout << "the current path was not received by motion_controller, attempting to send again:\n";
 
         std::cout << "timestamp: " << currentPath_.utime << "\n";
@@ -189,7 +192,7 @@ void Exploration::executeStateMachine(void)
         }std::cout << "\n";
 
         lcmInstance_->publish(CONTROLLER_PATH_CHANNEL, &currentPath_);
-    }
+    }*/
 
     //if path changed, send current path
     if(previousPath.path != currentPath_.path)
@@ -245,17 +248,28 @@ int8_t Exploration::executeExploringMap(bool initialize)
     *       -- You will likely be able to see the frontier before actually reaching the end of the path leading to it.
     */
 
-    frontiers_ = find_map_frontiers(currentMap_, currentPose_, 5);
+    planner_.setMap(currentMap_);
+    //planner_.setPrevGoal(currentTarget_);
+    planner_.setNumFrontiers(frontiers_.size());
 
+
+    
+    frontiers_ = find_map_frontiers(currentMap_, currentPose_, 1);
+    //std::cout << countToNewPath_ << " ";
     if (countToNewPath_ == 0) {
+        std::cout << "Front num: " << frontiers_.size();
+
         currentPath_ = plan_path_to_frontier(frontiers_, 
-                                   currentPose_,
-                                   currentMap_,
-                                   planner_);
-        countToNewPath_ += 10;
+                                    currentPose_,
+                                    currentMap_,
+                                    planner_);
+
+        countToNewPath_ += 1000;
     }else {
         countToNewPath_--; 
-    }
+    };
+
+
     
 
     
@@ -270,16 +284,19 @@ int8_t Exploration::executeExploringMap(bool initialize)
     // If no frontiers remain, then exploration is complete
     if(frontiers_.empty())
     {
+        std::cout << "NO FRONTIERS";
         status.status = exploration_status_t::STATUS_COMPLETE;
     }
     // Else if there's a path to follow, then we're still in the process of exploring
     else if(currentPath_.path.size() > 1)
     {
+        
         status.status = exploration_status_t::STATUS_IN_PROGRESS;
     }
     // Otherwise, there are frontiers, but no valid path exists, so exploration has failed
     else
     {
+        std::cout << "FAILED";
         status.status = exploration_status_t::STATUS_FAILED;
     }
     

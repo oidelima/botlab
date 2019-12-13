@@ -123,7 +123,7 @@ int BotGui::onMouseEvent(vx_layer_t* layer,
         target.theta = 0.0f;
        
         MotionPlannerParams plannerParams;
-        plannerParams.robotRadius = 0.16;
+        plannerParams.robotRadius = 0.2;
 
 
         MotionPlanner planner(plannerParams);

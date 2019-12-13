@@ -54,7 +54,7 @@ robot_path_t MotionPlanner::planPath(const pose_xyt_t& start, const pose_xyt_t& 
 
 bool MotionPlanner::isValidGoal(const pose_xyt_t& goal) const
 {
-    //float dx = goal.x - prev_goal.x, dy = goal.y - prev_goal.y; WHY IS HE DOING THIS
+    //float dx = goal.x - prev_goal.x, dy = goal.y - prev_goal.y; 
     float dx = goal.x - 0, dy = goal.y - 0;
     float distanceFromPrev = std::sqrt(dx * dx + dy * dy);
 

@@ -73,7 +73,7 @@ public:
     void handleConfirmation(const lcm::ReceiveBuffer* rbuf, const std::string& channel, const message_received_t* confirm);
 
 private:
-    
+    int64_t countToNewPath_;
     int32_t teamNumber_;                // Team number of the robot handling the exploration
     
     // Current state and data associated with the update -- use these variables for your exploration computations
@@ -103,7 +103,6 @@ private:
     
     pose_xyt_t   currentTarget_;    // Current target robot is driving to
     OccupancyGrid exploredMap_;     // Map found after completing the RETURNING_HOME state
-    int countToNewPath_;
     
     size_t prev_frontier_size;
     bool pathReceived_;
