@@ -67,6 +67,12 @@ std::vector<particle_t> ParticleFilter::resamplePosteriorDistribution(void)
     //////////// TODO: Implement your algorithm for resampling from the posterior distribution ///////////////////
     
     std::vector<particle_t> prior(kNumParticles_);
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::normal_distribution<double> pertubationDist(0.0,0.01);
+    double e1 = pertubationDist(gen);
+    double e2 = pertubationDist(gen);
+    double e3 = pertubationDist(gen);
     // super naive sampling with replacement
     // not computationally efficient - should ideally do some resevoir sampling method
     for(int i = 0; i < kNumParticles_; i++)
@@ -82,6 +88,12 @@ std::vector<particle_t> ParticleFilter::resamplePosteriorDistribution(void)
                 && (curVal + posterior_[j].weight) >= randomVal)
             {
                 prior[i] = posterior_[j];
+                prior[i].pose.x += e1;
+                prior[i].pose.y += e2;
+                prior[i].pose.theta += e3;
+                e1 = pertubationDist(gen);
+                e2 = pertubationDist(gen);
+                e3 = pertubationDist(gen);
                 break;
             }
             else
