@@ -343,7 +343,28 @@ int8_t Exploration::executeReturningHome(bool initialize)
     planner_.setMap(currentMap_);
     //planner_.setPrevGoal(currentTarget_);
     planner_.setNumFrontiers(frontiers_.size());
-    currentPath_ = planner_.planPath(currentPose_, homePose_);
+    if (currentTarget_.x != homePose_.x || currentTarget_.y != homePose_.y){
+        currentPath_ = planner_.planPath(currentPose_, homePose_);
+        if (!(currentPath_.path.size() > 1)){
+            for(int i = 0; i < 500; i++)
+            {
+                float xOffset = float(rand() % 60) / 100.0 - 0.3;
+                float yOffset = float(rand() % 60) / 100.0 - 0.3;
+                pose_xyt_t target_point = {NULL, homePose_.x + xOffset, homePose_.y + yOffset, 0};
+                currentPath_ = planner_.planPath(currentPose_, target_point);
+                if (currentPath_.path.size() > 1){
+                    break;
+                }
+            }
+            currentPath_.path.push_back(homePose_);
+
+        }
+    currentTarget_ = homePose_;
+
+
+
+    } 
+    
 
 
     /////////////////////////////// End student code ///////////////////////////////
@@ -363,9 +384,9 @@ int8_t Exploration::executeReturningHome(bool initialize)
         status.status = exploration_status_t::STATUS_COMPLETE;
     }
     // Otherwise, if there's a path, then keep following it
-    else if(currentPath_.path.size() > 1)
+    else if(currentPath_.path.size() > 2)
     {
-        std::cout << "RETURNING HOME NO PATH: FAILED";
+        std::cout << "RETURNING HOME";
         status.status = exploration_status_t::STATUS_IN_PROGRESS;
     }
     // Else, there's no valid path to follow and we aren't home, so we have failed.
@@ -381,6 +402,9 @@ int8_t Exploration::executeReturningHome(bool initialize)
     if(status.status == exploration_status_t::STATUS_IN_PROGRESS)
     {
         return exploration_status_t::STATE_RETURNING_HOME;
+    }else if(status.status == exploration_status_t::STATUS_COMPLETE)
+    {
+        return exploration_status_t::STATE_COMPLETED_EXPLORATION;
     }
     else // if(status.status == exploration_status_t::STATUS_FAILED)
     {

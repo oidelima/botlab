@@ -106,40 +106,46 @@ robot_path_t plan_path_to_frontier(const std::vector<frontier_t>& frontiers,
     robot_path_t plannedPath;
     float xOffset;
     float yOffset;
+    float boxWidth = 0.1;
     for (frontier_t frontier : frontiers){
-        for (Point<float> point: frontier.cells){
+        //for (Point<float> point: frontier.cells){
             //find midpoint to frontier 
+        Point<float> point = frontier.cells[(frontier.cells.size()-1)/2];
+        while(boxWidth < 0.6){
             for(int i = 0; i < 100; i++){
-                xOffset = float(rand() % 120) / 100.0 - 0.6;
-                yOffset = float(rand() % 120) / 100.0 - 0.6;
+                xOffset = float(rand() % int(boxWidth * 200)) / 100.0 - boxWidth;
+                yOffset = float(rand() % int(boxWidth * 200)) / 100.0 - boxWidth;
                 pose_xyt_t target_point = {NULL, point.x + xOffset, point.y + yOffset, 0};
                 plannedPath = planner.planPath(robotPose, target_point);
                 if (plannedPath.path_length != 1){
                     return plannedPath;
                 }
-
             }
-            std::cout << xOffset;
-            
-            
-
-            /*xOffset = -1;
-            while(xOffset < 1){
-                yOffset = -1;
-                while(yOffset < 1){
-                    yOffset += 0.1;
-                    //pose_xyt_t midway_point = {NULL, (point.x - robotPose.x)/3 + xOffset, (point.y - robotPose.y)/3 + yOffset, 0};
-                    pose_xyt_t target_point = {NULL, point.x + xOffset, point.y + yOffset, 0};
-                    plannedPath = planner.planPath(robotPose, target_point);
-                    if (plannedPath.path_length != 1){
-                        return plannedPath;
-                    }
-                }
-                xOffset += 0.1;
-            }*/
-            
-            
+            boxWidth += 0.1;
         }
+        boxWidth = 0.1;
+        
+        std::cout << xOffset;
+        
+        
+
+        /*xOffset = -1;
+        while(xOffset < 1){
+            yOffset = -1;
+            while(yOffset < 1){
+                yOffset += 0.1;
+                //pose_xyt_t midway_point = {NULL, (point.x - robotPose.x)/3 + xOffset, (point.y - robotPose.y)/3 + yOffset, 0};
+                pose_xyt_t target_point = {NULL, point.x + xOffset, point.y + yOffset, 0};
+                plannedPath = planner.planPath(robotPose, target_point);
+                if (plannedPath.path_length != 1){
+                    return plannedPath;
+                }
+            }
+            xOffset += 0.1;
+        }*/
+            
+            
+        //}
     }
     
 
