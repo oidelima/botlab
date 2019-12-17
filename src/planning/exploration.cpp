@@ -47,7 +47,8 @@ Exploration::Exploration(int32_t teamNumber,
     
     lcmInstance_->publish(EXPLORATION_STATUS_CHANNEL, &status);
     
-    countToNewPath_ = 0;
+    currentTarget_.x = 0;
+    currentTarget_.y = 0;
 
     MotionPlannerParams params;
     params.robotRadius = 0.2;
@@ -251,23 +252,28 @@ int8_t Exploration::executeExploringMap(bool initialize)
     planner_.setMap(currentMap_);
     //planner_.setPrevGoal(currentTarget_);
     planner_.setNumFrontiers(frontiers_.size());
+    frontiers_ = find_map_frontiers(currentMap_, currentPose_, 0.1);
+    float dist;
+    float epsilon = 0.05;
 
-
+    if (currentTarget_.x != 0 || currentTarget_.y != 0){
+        dist = sqrt(pow(currentPose_.x - currentTarget_.x, 2) + pow(currentPose_.y - currentTarget_.y, 2));
+    } else{
+        dist = 0;
+    }
     
-    frontiers_ = find_map_frontiers(currentMap_, currentPose_, 1);
-    //std::cout << countToNewPath_ << " ";
-    if (countToNewPath_ == 0) {
+    if (dist <= epsilon && !frontiers_.empty()) {
         std::cout << "Front num: " << frontiers_.size();
 
         currentPath_ = plan_path_to_frontier(frontiers_, 
                                     currentPose_,
                                     currentMap_,
                                     planner_);
-
-        countToNewPath_ += 1000;
-    }else {
-        countToNewPath_--; 
-    };
+        
+        if (currentPath_.path.size() > 1){
+            currentTarget_ = currentPath_.path[currentPath_.path_length - 1];
+        }
+    }
 
 
     
@@ -333,7 +339,11 @@ int8_t Exploration::executeReturningHome(bool initialize)
     *       (1) dist(currentPose_, targetPose_) < kReachedPositionThreshold  :  reached the home pose
     *       (2) currentPath_.path_length > 1  :  currently following a path to the home pose
     */
-    
+
+    planner_.setMap(currentMap_);
+    //planner_.setPrevGoal(currentTarget_);
+    planner_.setNumFrontiers(frontiers_.size());
+    currentPath_ = planner_.planPath(currentPose_, homePose_);
 
 
     /////////////////////////////// End student code ///////////////////////////////
@@ -349,16 +359,19 @@ int8_t Exploration::executeReturningHome(bool initialize)
     // If we're within the threshold of home, then we're done.
     if(distToHome <= kReachedPositionThreshold)
     {
+        std::cout << "ARRIVED HOME";
         status.status = exploration_status_t::STATUS_COMPLETE;
     }
     // Otherwise, if there's a path, then keep following it
     else if(currentPath_.path.size() > 1)
     {
+        std::cout << "RETURNING HOME NO PATH: FAILED";
         status.status = exploration_status_t::STATUS_IN_PROGRESS;
     }
     // Else, there's no valid path to follow and we aren't home, so we have failed.
     else
     {
+        std::cout<<"FOUND NO PATH TO HOME";
         status.status = exploration_status_t::STATUS_FAILED;
     }
     
